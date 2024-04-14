@@ -23,3 +23,8 @@ This project includes several REST API endpoints for user management and authent
 - **POST /login**: This endpoint is used for user authentication. It accepts a JSON object with `username` and `password` fields. If the authentication is successful, it returns a JWT token which can be used for subsequent requests.
 
 Please note that all sensitive information like passwords are securely hashed before being stored in the database, and all data transmission is done over secure HTTPS connections.
+
+## Unit Testing
+
+/api/signup
+/api/login
