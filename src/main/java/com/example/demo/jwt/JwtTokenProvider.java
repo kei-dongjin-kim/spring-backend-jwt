@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+import javax.crypto.SecretKey;
+import java.security.PublicKey;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -21,7 +24,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -60,20 +62,20 @@ public class JwtTokenProvider implements InitializingBean {
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(authentication.getName())
+                .subject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
+                .signWith(key)
+                .expiration(validity)
                 .compact();
     }
 
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts
-                .parserBuilder()
-                .setSigningKey(key)
+                .parser()
+                .verifyWith((SecretKey) key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
 
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
@@ -87,7 +89,7 @@ public class JwtTokenProvider implements InitializingBean {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parser().verifyWith((PublicKey) key).build().parseSignedClaims(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             logger.info("Malformed Jwt Exception");

@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -15,8 +16,8 @@ import org.springframework.web.filter.CorsFilter;
 
 import com.example.demo.jwt.JwtAccessDeniedHandler;
 import com.example.demo.jwt.JwtAuthenticationEntryPoint;
-import com.example.demo.jwt.JwtSecurityConfig;
 import com.example.demo.jwt.JwtTokenProvider;
+import com.example.demo.jwt.JwtFilter;
 
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -45,37 +46,39 @@ public class SecurityConfig {
   }
 
   @Bean
-  SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-    httpSecurity
+  SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
             // csrf have to be disabled, because we will use token.
-            .csrf().disable()
+            .csrf(AbstractHttpConfigurer::disable)
 
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
 
-            .exceptionHandling()
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-            .accessDeniedHandler(jwtAccessDeniedHandler)
+            .exceptionHandling((exception) -> exception
+              .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+              .accessDeniedHandler(jwtAccessDeniedHandler)
+            )
 
             // enable h2-console
-            .and()
-            .headers()
-            .frameOptions()
-            .sameOrigin()
+            .headers((headers) -> headers
+              .frameOptions((frameOptions) -> frameOptions.sameOrigin())
+            )
 
             // session have to be STATELESS, because will not use session
-            .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .sessionManagement((sessionManagement) -> sessionManagement
+              .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
 
-            .and()
-            .authorizeHttpRequests()
-            .requestMatchers("/api/login", "/api/signup").permitAll()
-            .requestMatchers(PathRequest.toH2Console()).permitAll()
-            .anyRequest().authenticated()
+            .authorizeHttpRequests((authorizeRequests) -> authorizeRequests
+              .requestMatchers("/api/login", "/api/signup").permitAll()
+              .requestMatchers(PathRequest.toH2Console()).permitAll()
+              .anyRequest().authenticated()
+            )
 
-            .and()
-            .apply(new JwtSecurityConfig(jwtTokenProvider));
+            .addFilterBefore(
+              new JwtFilter(jwtTokenProvider),
+              UsernamePasswordAuthenticationFilter.class
+            );
 
-    return httpSecurity.build();
+    return http.build();
   }
 }

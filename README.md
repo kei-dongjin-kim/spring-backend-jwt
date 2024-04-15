@@ -4,15 +4,25 @@ This project is a backend service built with Spring Boot, implementing JWT (JSON
 
 ## Tech Stack
 
-- **Spring Boot**: The main framework used for building the backend service. It simplifies the bootstrapping and development of a new Spring application.
+- **Spring Boot**
 
-- **JWT (JSON Web Token)**: Used for securely transmitting information between parties as a JSON object. In this project, it's used for authentication.
+  - The main framework used for building the backend service. It simplifies the bootstrapping and development of a new Spring application.
 
-- **Spring Security**: A powerful and highly customizable authentication and access-control framework. It's used in this project to secure REST endpoints.
+- **Spring Security**
 
-- **Hibernate**: A Java framework that simplifies the development of Java application to interact with the database. It's used in this project for ORM (Object Relational Mapping).
+  - A powerful and highly customizable authentication and access-control framework. It's used in this project to secure REST endpoints.
 
-- **H2 Database**: This is an in-memory database that supports JDBC API. It can be embedded in Java applications or run in the client-server mode. It is lightweight and does not require installation. In this project, it is used for development and testing purposes.
+- **JWT (JSON Web Token)**
+
+  - Used for securely transmitting information between parties as a JSON object. In this project, it's used for authentication.
+
+- **Hibernate**
+
+  - A Java framework that simplifies the development of Java application to interact with the database. It's used in this project for ORM (Object Relational Mapping).
+
+- **H2 Database**
+
+  - This is an in-memory database that supports JDBC API. It can be embedded in Java applications or run in the client-server mode. It is lightweight and does not require installation. In this project, it is used for development and testing purposes.
 
 ## API Endpoints
 
@@ -26,5 +36,5 @@ Please note that all sensitive information like passwords are securely hashed be
 
 ## Unit Testing
 
-/api/signup
-/api/login
+- /api/signup
+- /api/login
